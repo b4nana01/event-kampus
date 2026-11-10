@@ -1,0 +1,5 @@
+target/
+.DS_Store
+.vscode/
+CRUD_Event_ANA/
+.idea/

@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Event | EventKampus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #3730a3;
+            --primary-soft: #eef0ff;
+            --bg: #f5f7fb;
+            --card: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --line: #e8ecf4;
+            --green: #16a34a;
+            --green-soft: #dcfce7;
+            --red: #dc2626;
+            --red-soft: #fee2e2;
+            --amber: #d97706;
+            --amber-soft: #fef3c7;
+            --shadow: 0 4px 24px rgba(30, 41, 59, .07);
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+        }
+        button { font-family: inherit; }
+
+        /* ===== Header ===== */
+        header {
+            background: linear-gradient(120deg, #3730a3 0%, #4f46e5 55%, #06b6d4 120%);
+            color: white;
+            padding: 22px 0 90px;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before, header::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,.08);
+        }
+        header::before { width: 320px; height: 320px; right: -80px; top: -140px; }
+        header::after  { width: 200px; height: 200px; right: 180px; bottom: -120px; }
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .logo {
+            width: 42px; height: 42px;
+            border-radius: 12px;
+            background: rgba(255,255,255,.18);
+            backdrop-filter: blur(6px);
+            display: grid; place-items: center;
+            font-size: 22px;
+        }
+        .brand h2 { margin: 0; font-size: 20px; font-weight: 800; }
+        .brand p { margin: 0; font-size: 12.5px; opacity: .8; }
+        .admin-chip {
+            background: rgba(255,255,255,.16);
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* ===== Layout ===== */
+        .container {
+            max-width: 1200px;
+            margin: -62px auto 40px;
+            padding: 0 20px;
+            position: relative;
+            z-index: 2;
+        }
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 15px;
+            flex-wrap: wrap;
+            color: white;
+            margin-bottom: 22px;
+        }
+        .top h1 { margin: 0; font-size: 30px; font-weight: 800; }
+        .top p { margin: 4px 0 0; opacity: .85; font-size: 14px; }
+
+        .btn {
+            border: 0;
+            border-radius: 10px;
+            padding: 11px 18px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            transition: transform .15s, box-shadow .15s;
+        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn.primary { background: white; color: var(--primary-dark); box-shadow: 0 6px 18px rgba(0,0,0,.18); }
+        .btn.save { background: var(--primary); color: white; box-shadow: 0 6px 16px rgba(79,70,229,.35); }
+        .btn.cancel { background: #eef1f6; color: var(--muted); }
+
+        /* ===== Stats ===== */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: var(--shadow);
+        }
+        .stat-icon {
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            display: grid; place-items: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        .stat:nth-child(1) .stat-icon { background: var(--primary-soft); }
+        .stat:nth-child(2) .stat-icon { background: var(--green-soft); }
+        .stat:nth-child(3) .stat-icon { background: var(--amber-soft); }
+        .stat span { color: var(--muted); font-size: 13px; font-weight: 500; }
+        .stat strong { display: block; font-size: 26px; line-height: 1.2; font-weight: 800; }
+
+        /* ===== Panel & table ===== */
+        .panel { background: var(--card); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden; }
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            padding: 20px 22px;
+            border-bottom: 1px solid var(--line);
+        }
+        .toolbar h3 { margin: 0; font-size: 17px; }
+        .search-box { position: relative; width: 100%; max-width: 340px; }
+        .search-box::before {
+            content: "🔍";
+            position: absolute;
+            left: 13px; top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            opacity: .6;
+        }
+        .search { padding-left: 38px !important; }
+
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        th, td { padding: 16px 18px; text-align: left; }
+        thead th {
+            background: #f8f9fd;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            border-bottom: 1px solid var(--line);
+            white-space: nowrap;
+        }
+        tbody tr { border-bottom: 1px solid var(--line); transition: background .15s; }
+        tbody tr:last-child { border-bottom: 0; }
+        tbody tr:hover { background: #fafbff; }
+        .event-name { font-weight: 700; }
+        .date-main { font-weight: 600; font-size: 14px; white-space: nowrap; }
+        .date-sub { font-size: 12.5px; color: var(--muted); }
+        .price { font-weight: 600; white-space: nowrap; }
+        .price.free { color: var(--green); }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 11px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .badge.kategori { background: var(--primary-soft); color: var(--primary); }
+        .badge.aktif { background: var(--green-soft); color: var(--green); }
+        .badge.nonaktif { background: var(--red-soft); color: var(--red); }
+        .badge.aktif::before, .badge.nonaktif::before { content: "● "; font-size: 9px; }
+
+        .quota { font-weight: 700; }
+        .quota.low { color: var(--amber); }
+        .quota.zero { color: var(--red); }
+        .quota small { display: block; font-weight: 500; color: var(--muted); font-size: 11.5px; }
+
+        .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+        .actions button {
+            border: 0;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 12.5px;
+            transition: transform .15s, filter .15s;
+        }
+        .actions button:hover { transform: translateY(-1px); filter: brightness(.96); }
+        .detail { background: #e0f2fe; color: #0369a1; }
+        .edit { background: var(--primary-soft); color: var(--primary); }
+        .delete { background: var(--red-soft); color: var(--red); }
+        .activate { background: var(--green-soft); color: var(--green); }
+
+        .empty { text-align: center; padding: 60px 20px !important; color: var(--muted); }
+        .empty .emoji { font-size: 44px; display: block; margin-bottom: 8px; }
+
+        /* ===== Form fields ===== */
+        label { font-size: 13px; font-weight: 700; color: #334155; }
+        input, select, textarea {
+            width: 100%;
+            padding: 11px 13px;
+            border: 1.5px solid var(--line);
+            border-radius: 10px;
+            font: inherit;
+            font-size: 14px;
+            background: var(--bg);
+            transition: border .2s, box-shadow .2s, background .2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(79,70,229,.12);
+        }
+        textarea { resize: vertical; min-height: 80px; }
+
+        /* ===== Dialog ===== */
+        dialog {
+            border: 0;
+            border-radius: 20px;
+            padding: 0;
+            width: min(520px, 94%);
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(15, 23, 42, .3);
+            color: var(--text);
+        }
+        dialog[open] { animation: pop .25s ease; }
+        dialog::backdrop { background: rgba(15, 23, 42, .55); backdrop-filter: blur(3px); }
+        @keyframes pop {
+            from { opacity: 0; transform: translateY(14px) scale(.97); }
+            to   { opacity: 1; transform: none; }
+        }
+        .dialog-head {
+            background: linear-gradient(120deg, #3730a3, #4f46e5);
+            color: white;
+            padding: 20px 26px;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        .dialog-head h2 { margin: 0; font-size: 19px; }
+        .dialog-head p { margin: 2px 0 0; font-size: 13px; opacity: .8; }
+
+        form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 24px 26px 26px; }
+        .field { display: grid; gap: 6px; }
+        .field.full { grid-column: 1 / -1; }
+        .form-actions {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 6px;
+        }
+
+        /* ===== Detail ===== */
+        .detail-body { padding: 24px 26px 26px; }
+        .detail-title { font-size: 20px; font-weight: 800; margin: 0 0 10px; }
+        .detail-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+        .detail-desc {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 14px;
+            color: #475569;
+            margin-bottom: 16px;
+        }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .detail-item {
+            border: 1.5px solid var(--line);
+            border-radius: 12px;
+            padding: 12px 14px;
+        }
+        .detail-item.full { grid-column: 1 / -1; }
+        .detail-item span {
+            display: block;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 2px;
+        }
+        .detail-item strong { font-size: 14.5px; }
+        .detail-footer { padding: 0 26px 24px; display: flex; justify-content: flex-end; }
+
+        /* ===== Toast ===== */
+        #toast {
+            position: fixed;
+            bottom: 28px; right: 28px;
+            background: #0f172a;
+            color: white;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0,0,0,.3);
+            transform: translateY(30px);
+            opacity: 0;
+            pointer-events: none;
+            transition: .3s;
+            z-index: 1000;
+            border-left: 4px solid var(--green);
+        }
+        #toast.show { transform: none; opacity: 1; }
+        #toast.error { border-left-color: var(--red); }
+
+        footer { text-align: center; color: var(--muted); font-size: 13px; padding: 0 20px 30px; }
+
+        @media (max-width: 640px) {
+            .top h1 { font-size: 25px; }
+            form, .detail-grid { grid-template-columns: 1fr; }
+            .admin-chip { display: none; }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="header-inner">
+        <div class="brand">
+            <div class="logo">🎓</div>
+            <div>
+                <h2>EventKampus</h2>
+                <p>Panel Admin / Pengelolaan Event</p>
+            </div>
+        </div>
+        <div class="admin-chip">👤 Administrator</div>
+    </div>
+</header>
+
+<main class="container">
+
+    <div class="top">
+        <div>
+            <h1>Kelola Event</h1>
+            <p>Kelola informasi kegiatan kampus dengan mudah.</p>
+        </div>
+        <button class="btn primary" onclick="openForm()">＋ Tambah Event</button>
+    </div>
+
+    <section class="stats">
+        <div class="stat">
+            <div class="stat-icon">📅</div>
+            <div><span>Total Event</span><strong id="statTotal">0</strong></div>
+        </div>
+        <div class="stat">
+            <div class="stat-icon">✅</div>
+            <div><span>Event Aktif</span><strong id="statAktif">0</strong></div>
+        </div>
+        <div class="stat">
+            <div class="stat-icon">🎟️</div>
+            <div><span>Total Kuota</span><strong id="statKuota">0</strong></div>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="toolbar">
+            <h3>Daftar Event</h3>
+            <div class="search-box">
+                <input type="text" class="search" id="search"
+                    placeholder="Cari nama event..."
+                    oninput="renderEvents()">
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nama Event</th>
+                        <th>Kategori</th>
+                        <th>Tanggal</th>
+                        <th>Lokasi</th>
+                        <th>Biaya</th>
+                        <th>Kuota</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="eventList"></tbody>
+            </table>
+        </div>
+    </section>
+
+</main>
+
+<footer>© 2026 EventKampus · Panel Admin</footer>
+
+<!-- FORM TAMBAH DAN EDIT EVENT -->
+<dialog id="eventDialog">
+    <div class="dialog-head">
+        <h2 id="formTitle">Tambah Event</h2>
+        <p>Lengkapi informasi kegiatan di bawah ini.</p>
+    </div>
+
+    <form id="eventForm">
+        <input type="hidden" id="editIndex">
+
+        <div class="field full">
+            <label for="nama">Nama Event</label>
+            <input type="text" id="nama" maxlength="150" required placeholder="Contoh: Seminar Nasional">
+        </div>
+
+        <div class="field full">
+            <label for="kategori">Kategori</label>
+            <input type="text" id="kategori" maxlength="50" required placeholder="Seminar, Workshop, Kompetisi...">
+        </div>
+
+        <div class="field full">
+            <label for="deskripsi">Deskripsi</label>
+            <textarea id="deskripsi" rows="3" placeholder="Tulis deskripsi singkat event"></textarea>
+        </div>
+
+        <div class="field">
+            <label for="mulai">Tanggal Mulai</label>
+            <input type="datetime-local" id="mulai" required>
+        </div>
+
+        <div class="field">
+            <label for="selesai">Tanggal Selesai</label>
+            <input type="datetime-local" id="selesai" required>
+        </div>
+
+        <div class="field full">
+            <label for="lokasi">Lokasi</label>
+            <input type="text" id="lokasi" maxlength="150" required placeholder="Contoh: Aula Utama Kampus">
+        </div>
+
+        <div class="field">
+            <label for="biaya">Biaya (Rp)</label>
+            <input type="number" id="biaya" min="0" required>
+        </div>
+
+        <div class="field">
+            <label for="kuota">Kuota</label>
+            <input type="number" id="kuota" min="0" required>
+        </div>
+
+        <div class="field full">
+            <label for="status">Status</label>
+            <select id="status">
+                <option value="Aktif">Aktif</option>
+                <option value="Nonaktif">Nonaktif</option>
+            </select>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn cancel" onclick="eventDialog.close()">Batal</button>
+            <button class="btn save" type="submit">Simpan</button>
+        </div>
+    </form>
+</dialog>
+
+<!-- DETAIL EVENT -->
+<dialog id="detailDialog">
+    <div class="dialog-head">
+        <h2>Detail Event</h2>
+        <p>Informasi lengkap kegiatan.</p>
+    </div>
+
+    <div class="detail-body" id="detailContent"></div>
+
+    <div class="detail-footer">
+        <button class="btn save" onclick="detailDialog.close()">Tutup</button>
+    </div>
+</dialog>
+
+<div id="toast"></div>
+
+<script>
+
+// DATA EVENT (diambil dari server)
+let events = [];
+
+const eventDialog = document.getElementById("eventDialog");
+const detailDialog = document.getElementById("detailDialog");
+const eventForm = document.getElementById("eventForm");
+const toastEl = document.getElementById("toast");
+let toastTimer;
+
+
+// NOTIFIKASI TOAST
+function showToast(message, type = "success") {
+    toastEl.textContent = (type === "error" ? "⚠️ " : "✅ ") + message;
+    toastEl.className = "show " + (type === "error" ? "error" : "");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.className = "", 2800);
+}
+
+
+// KOMUNIKASI DENGAN SERVER (EventServer.java)
+async function api(method, url, body) {
+    let res;
+    try {
+        res = await fetch(url, {
+            method,
+            headers: { "Content-Type": "application/json" },
+            body: body ? JSON.stringify(body) : undefined
+        });
+    } catch (err) {
+        throw new Error("Tidak bisa terhubung ke server. Jalankan EventServer, lalu buka http://localhost:8080");
+    }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "Terjadi kesalahan di server.");
+    return data;
+}
+
+async function loadEvents() {
+    try {
+        events = await api("GET", "/api/events");
+    } catch (err) {
+        showToast(err.message, "error");
+    }
+    renderEvents();
+}
+
+
+// STATISTIK RINGKAS
+function updateStats() {
+    document.getElementById("statTotal").textContent = events.length;
+    document.getElementById("statAktif").textContent =
+        events.filter(e => e.status === "Aktif").length;
+    document.getElementById("statKuota").textContent =
+        events.reduce((sum, e) => sum + e.kuota, 0);
+}
+
+
+// MENAMPILKAN DAFTAR EVENT
+function renderEvents() {
+
+    const keyword = document.getElementById("search").value.toLowerCase();
+    const tbody = document.getElementById("eventList");
+
+    updateStats();
+
+    const filteredEvents = events
+        .map((event, index) => ({ event, index }))
+        .filter(item => item.event.nama.toLowerCase().includes(keyword));
+
+    if (filteredEvents.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="empty">
+                    <span class="emoji">🔎</span>
+                    <strong>Event tidak ditemukan</strong>
+                    <div>Coba kata kunci lain atau tambahkan event baru.</div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = filteredEvents.map(({ event, index }) => {
+
+        const isAktif = event.status === "Aktif";
+        const t = splitDate(event.mulai);
+        const quotaClass = event.kuota === 0 ? "zero" : event.kuota <= 5 ? "low" : "";
+        const quotaNote = event.kuota === 0 ? "Penuh" : event.kuota <= 5 ? "Hampir habis" : "";
+
+        return `
+            <tr>
+                <td><div class="event-name">${escapeHTML(event.nama)}</div></td>
+                <td><span class="badge kategori">${escapeHTML(event.kategori)}</span></td>
+                <td>
+                    <div class="date-main">${t.tgl}</div>
+                    <div class="date-sub">${t.jam}</div>
+                </td>
+                <td>📍 ${escapeHTML(event.lokasi)}</td>
+                <td><span class="price ${event.biaya === 0 ? "free" : ""}">${formatBiaya(event.biaya)}</span></td>
+                <td>
+                    <div class="quota ${quotaClass}">${event.kuota}
+                        ${quotaNote ? `<small>${quotaNote}</small>` : ""}
+                    </div>
+                </td>
+                <td>
+                    <span class="badge ${isAktif ? "aktif" : "nonaktif"}">${event.status}</span>
+                </td>
+                <td>
+                    <div class="actions">
+                        <button class="detail" onclick="detailEvent(${index})">👁 Detail</button>
+                        <button class="edit" onclick="editEvent(${index})">✏️ Edit</button>
+                        <button class="${isAktif ? "delete" : "activate"}" onclick="toggleEvent(${index})">
+                            ${isAktif ? "Nonaktifkan" : "Aktifkan"}
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join("");
+}
+
+
+// FORMAT TANGGAL
+function splitDate(date) {
+    if (!date) return { tgl: "-", jam: "" };
+    const d = new Date(date);
+    return {
+        tgl: d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }),
+        jam: d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }).replace(".", ":") + " WIB"
+    };
+}
+
+function formatDate(date) {
+    const t = splitDate(date);
+    return t.jam ? `${t.tgl}, ${t.jam}` : t.tgl;
+}
+
+function formatBiaya(n) {
+    return n === 0 ? "Gratis" : "Rp" + n.toLocaleString("id-ID");
+}
+
+
+// MENGAMANKAN TEKS DARI INPUT
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+    })[char]);
+}
+
+
+// MEMBUKA FORM TAMBAH EVENT
+function openForm() {
+    eventForm.reset();
+    document.getElementById("editIndex").value = "";
+    document.getElementById("formTitle").textContent = "Tambah Event";
+    eventDialog.showModal();
+}
+
+
+// MENYIMPAN EVENT BARU ATAU HASIL EDIT
+eventForm.addEventListener("submit", async function(e) {
+
+    e.preventDefault();
+
+    const mulai = document.getElementById("mulai").value;
+    const selesai = document.getElementById("selesai").value;
+
+    const biaya = Number(document.getElementById("biaya").value);
+    const kuota = Number(document.getElementById("kuota").value);
+
+    if (selesai < mulai) {
+        showToast("Tanggal selesai tidak boleh sebelum tanggal mulai!", "error");
+        return;
+    }
+
+    if (biaya < 0 || kuota < 0) {
+        showToast("Biaya dan kuota tidak boleh negatif!", "error");
+        return;
+    }
+
+    const event = {
+        nama: document.getElementById("nama").value.trim(),
+        kategori: document.getElementById("kategori").value.trim(),
+        deskripsi: document.getElementById("deskripsi").value.trim(),
+        mulai: mulai,
+        selesai: selesai,
+        lokasi: document.getElementById("lokasi").value.trim(),
+        biaya: biaya,
+        kuota: kuota,
+        status: document.getElementById("status").value
+    };
+
+    if (!event.nama || !event.kategori || !event.lokasi) {
+        showToast("Mohon isi seluruh data wajib!", "error");
+        return;
+    }
+
+    const index = document.getElementById("editIndex").value;
+
+    try {
+        if (index === "") {
+            await api("POST", "/api/events", event);
+            showToast("Event berhasil ditambahkan!");
+        } else {
+            await api("PUT", "/api/events/" + events[Number(index)].id, event);
+            showToast("Event berhasil diperbarui!");
+        }
+        eventDialog.close();
+        await loadEvents();
+    } catch (err) {
+        showToast(err.message, "error");
+    }
+});
+
+
+// MELIHAT DETAIL EVENT
+function detailEvent(index) {
+
+    const event = events[index];
+    const isAktif = event.status === "Aktif";
+
+    document.getElementById("detailContent").innerHTML = `
+        <h3 class="detail-title">${escapeHTML(event.nama)}</h3>
+
+        <div class="detail-badges">
+            <span class="badge kategori">${escapeHTML(event.kategori)}</span>
+            <span class="badge ${isAktif ? "aktif" : "nonaktif"}">${event.status}</span>
+        </div>
+
+        <div class="detail-desc">${escapeHTML(event.deskripsi || "Belum ada deskripsi.")}</div>
+
+        <div class="detail-grid">
+            <div class="detail-item">
+                <span>Tanggal Mulai</span>
+                <strong>${formatDate(event.mulai)}</strong>
+            </div>
+            <div class="detail-item">
+                <span>Tanggal Selesai</span>
+                <strong>${formatDate(event.selesai)}</strong>
+            </div>
+            <div class="detail-item full">
+                <span>Lokasi</span>
+                <strong>📍 ${escapeHTML(event.lokasi)}</strong>
+            </div>
+            <div class="detail-item">
+                <span>Biaya</span>
+                <strong>${formatBiaya(event.biaya)}</strong>
+            </div>
+            <div class="detail-item">
+                <span>Kuota</span>
+                <strong>${event.kuota} peserta</strong>
+            </div>
+        </div>
+    `;
+
+    detailDialog.showModal();
+}
+
+
+// MENGEDIT EVENT
+function editEvent(index) {
+
+    const event = events[index];
+
+    document.getElementById("editIndex").value = index;
+
+    document.getElementById("nama").value = event.nama;
+    document.getElementById("kategori").value = event.kategori;
+    document.getElementById("deskripsi").value = event.deskripsi;
+    document.getElementById("mulai").value = event.mulai;
+    document.getElementById("selesai").value = event.selesai;
+    document.getElementById("lokasi").value = event.lokasi;
+    document.getElementById("biaya").value = event.biaya;
+    document.getElementById("kuota").value = event.kuota;
+    document.getElementById("status").value = event.status;
+
+    document.getElementById("formTitle").textContent = "Edit Event";
+
+    eventDialog.showModal();
+}
+
+
+// MENONAKTIFKAN DAN MENGAKTIFKAN EVENT
+async function toggleEvent(index) {
+
+    const event = events[index];
+    const aktif = event.status === "Aktif";
+
+    if (!confirm(`Yakin ingin ${aktif ? "menonaktifkan" : "mengaktifkan"} event ini?`)) {
+        return;
+    }
+
+    try {
+        await api("POST", `/api/events/${event.id}/${aktif ? "nonaktifkan" : "aktifkan"}`);
+        await loadEvents();
+        showToast(`Status event berhasil diubah menjadi ${aktif ? "Nonaktif" : "Aktif"}!`);
+    } catch (err) {
+        showToast(err.message, "error");
+    }
+}
+
+
+// MENAMPILKAN DATA SAAT HALAMAN DIBUKA
+loadEvents();
+
+</script>
+
+</body>
+</html>
